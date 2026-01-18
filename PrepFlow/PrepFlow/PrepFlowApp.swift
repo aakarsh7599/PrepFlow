@@ -7,6 +7,12 @@ struct PrepFlowApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [Topic.self, DailyProgress.self, JournalEntry.self])
+        .modelContainer(for: [
+            DailyProgress.self,
+            JournalEntry.self,
+            TopicCompletion.self,
+            QuizSession.self,
+            QuizQuestionRecord.self
+        ])
     }
 }

@@ -1,69 +1,7 @@
 import Foundation
 import SwiftData
 
-enum TopicCategory: String, Codable, CaseIterable {
-    case lld = "LLD"
-    case hld = "HLD"
-    case dsa = "DSA"
-
-    var color: String {
-        switch self {
-        case .lld: return "purple"
-        case .hld: return "blue"
-        case .dsa: return "green"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .lld: return "cube.fill"
-        case .hld: return "cloud.fill"
-        case .dsa: return "function"
-        }
-    }
-}
-
-@Model
-final class Topic {
-    var id: UUID
-    var title: String
-    var categoryRaw: String
-    var day: Int
-    var week: Int
-    var content: String
-    var subtopics: [String]
-    var isCompleted: Bool
-    var completedAt: Date?
-    var resources: [String]
-
-    var category: TopicCategory {
-        get { TopicCategory(rawValue: categoryRaw) ?? .lld }
-        set { categoryRaw = newValue.rawValue }
-    }
-
-    init(
-        id: UUID = UUID(),
-        title: String,
-        category: TopicCategory,
-        day: Int,
-        week: Int,
-        content: String,
-        subtopics: [String] = [],
-        isCompleted: Bool = false,
-        resources: [String] = []
-    ) {
-        self.id = id
-        self.title = title
-        self.categoryRaw = category.rawValue
-        self.day = day
-        self.week = week
-        self.content = content
-        self.subtopics = subtopics
-        self.isCompleted = isCompleted
-        self.resources = resources
-    }
-}
-
+// MARK: - Daily Progress Model
 @Model
 final class DailyProgress {
     var id: UUID
@@ -81,9 +19,16 @@ final class DailyProgress {
         return Double(completed) / 3.0
     }
 
+    var isFullyCompleted: Bool {
+        lldCompleted && hldCompleted && dsaCompleted
+    }
+
     init(
         id: UUID = UUID(),
         date: Date = Date(),
+        lldTopicId: UUID? = nil,
+        hldTopicId: UUID? = nil,
+        dsaTopicId: UUID? = nil,
         lldCompleted: Bool = false,
         hldCompleted: Bool = false,
         dsaCompleted: Bool = false,
@@ -91,6 +36,9 @@ final class DailyProgress {
     ) {
         self.id = id
         self.date = date
+        self.lldTopicId = lldTopicId
+        self.hldTopicId = hldTopicId
+        self.dsaTopicId = dsaTopicId
         self.lldCompleted = lldCompleted
         self.hldCompleted = hldCompleted
         self.dsaCompleted = dsaCompleted
@@ -98,6 +46,7 @@ final class DailyProgress {
     }
 }
 
+// MARK: - Journal Entry Model
 @Model
 final class JournalEntry {
     var id: UUID
@@ -130,5 +79,38 @@ final class JournalEntry {
         self.aiFeedback = aiFeedback
         self.followUpQuestions = followUpQuestions
         self.knowledgeGaps = knowledgeGaps
+    }
+}
+
+// MARK: - Topic Completion Model
+@Model
+final class TopicCompletion {
+    var id: UUID
+    var topicTitle: String
+    var category: String
+    var week: Int
+    var day: Int
+    var completedAt: Date
+    var journalEntryId: UUID?
+    var quizScore: Int?
+
+    init(
+        id: UUID = UUID(),
+        topicTitle: String,
+        category: String,
+        week: Int,
+        day: Int,
+        completedAt: Date = Date(),
+        journalEntryId: UUID? = nil,
+        quizScore: Int? = nil
+    ) {
+        self.id = id
+        self.topicTitle = topicTitle
+        self.category = category
+        self.week = week
+        self.day = day
+        self.completedAt = completedAt
+        self.journalEntryId = journalEntryId
+        self.quizScore = quizScore
     }
 }
